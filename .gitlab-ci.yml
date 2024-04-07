@@ -249,7 +249,7 @@ deploy:
   variables:
     COV_STREAM: $CI_PROJECT_NAME-$CI_MERGE_REQUEST_TARGET_BRANCH_NAME
   script:
-    - curl -fLsS --user $COV_USER:$COVERITY_PASSPHRASE $COVERITY_URL/downloadFile.htm?fn=$COVERITY_TOOLKIT.tar.gz | tar -C /tmp -xzf -
+    - curl -k -fLsS --user $COV_USER:$COVERITY_PASSPHRASE $COVERITY_URL/downloadFile.htm?fn=$COVERITY_TOOLKIT.tar.gz | tar -C /tmp -xzf -
     - curl -fLsS --user $COV_USER:$COVERITY_PASSPHRASE -o /tmp/$COVERITY_TOOLKIT/bin/license.dat $COVERITY_URL/downloadFile.htm?fn=license.dat
     - export PATH=$PATH:/tmp/$COVERITY_TOOLKIT/bin
     - export CHANGE_SET=$(git --no-pager diff origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME --name-only)
