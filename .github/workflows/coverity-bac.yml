@@ -29,7 +29,7 @@ jobs:
     - name: Coverity Download
       run: |
         curl -k -fLsS --user $COV_USER:$COVERITY_PASSPHRASE $COVERITY_URL/downloadFile.htm?fn=$COVERITY_TOOLKIT.tar.gz | tar -C ${{ runner.temp }} -xzf -
-        curl -fLsS --user $COV_USER:$COVERITY_PASSPHRASE -o ${{ runner.temp }}/$COVERITY_TOOLKIT/bin/license.dat $COVERITY_URL/downloadFile.htm?fn=license.dat
+        curl -k -fLsS --user $COV_USER:$COVERITY_PASSPHRASE -o ${{ runner.temp }}/$COVERITY_TOOLKIT/bin/license.dat $COVERITY_URL/downloadFile.htm?fn=license.dat
     - name: Coverity Full Scan
       if: ${{ github.event_name != 'pull_request' }}
       env:
