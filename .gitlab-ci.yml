@@ -223,7 +223,7 @@ deploy:
     COVERITY_PROJECT: $CI_PROJECT_NAME
     COVERITY_STREAM: $CI_PROJECT_NAME-$CI_COMMIT_BRANCH
   script:
-    - curl -fLsS --user $COV_USER:$COVERITY_PASSPHRASE $COVERITY_URL/downloadFile.htm?fn=$COVERITY_TOOLKIT.tar.gz | tar -C /tmp -xzf -
+    - curl -k -fLss --user $COV_USER:$COV_PASSPHRASE $COV_URL/downloadFile.htm?fn=$COV_TOOLKIT.tar.gz | tar -C /home/***/Documents/actions-runner/work/_temp -xzf -
     - curl -fLsS --user $COV_USER:$COVERITY_PASSPHRASE -o /tmp/$COVERITY_TOOLKIT/bin/license.dat $COVERITY_URL/downloadFile.htm?fn=license.dat
     - export PATH=$PATH:/tmp/$COVERITY_TOOLKIT/bin
     - cov-configure --java
