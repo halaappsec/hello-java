@@ -3,6 +3,9 @@ pipeline {
 
     environment {
         CONNECT = 'https://192.168.119.161:8443'
+        COVERITY_URL = 'https://192.168.119.161:8443'
+        COV_USER:admin
+        COVERITY_PASSPHRASE:appsec
         PROJECT = 'hello1-java'
         BLDCMD = 'mvn -B package -DskipTests'
         CHECKERS = '--webapp-security --enable-callgraph-metrics'
