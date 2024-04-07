@@ -1,4 +1,3 @@
-runs-on: self-hosted
 capture:
   build:
     clean-command: mvn -B clean
