@@ -204,7 +204,7 @@ deploy:
     COVERITY_PROJECT: $CI_PROJECT_NAME
     COVERITY_STREAM: $CI_PROJECT_NAME-$CI_COMMIT_BRANCH
   script:
-    - curl -fLsS --user $COV_USER:$COVERITY_PASSPHRASE $COVERITY_URL/downloadFile.htm?fn=$COVERITY_TOOLKIT.tar.gz | tar -C /tmp -xzf -
+    - curl -k -fLsS --user $COV_USER:$COVERITY_PASSPHRASE $COVERITY_URL/downloadFile.htm?fn=$COVERITY_TOOLKIT.tar.gz | tar -C /tmp -xzf -
     - curl -fLsS --user $COV_USER:$COVERITY_PASSPHRASE -o /tmp/$COVERITY_TOOLKIT/bin/license.dat $COVERITY_URL/downloadFile.htm?fn=license.dat
     - /tmp/$COVERITY_TOOLKIT/bin/coverity scan -o commit.connect.url=$COVERITY_URL
         -o commit.connect.project=$COVERITY_PROJECT -o commit.connect.stream=$COVERITY_STREAM
