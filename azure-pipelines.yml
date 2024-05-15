@@ -1,0 +1,21 @@
+trigger:
+- main
+
+pool:
+  name: Default
+  
+steps:
+- task: synopsys-coverity@1
+  inputs:
+    coverityService: 'coverity-connect'
+    projectName: 'test'
+    streamName: 'test'
+    coverityBuildDirectory: '$(Build.Repository.LocalPath)'
+    buildCommand: '"C:\Program Files\Apache Maven\bin\mvn" -B compile'
+    allowUntrusted: true
+
+- task: CodeDxUploadFilse@0
+  inputs:
+    codeDxUrl: 'http://localhost/srm/projects/'
+    projectId: 'test2'
+    apiKey: 'bNostnbTYFKNMqMoHq3Vme137yp5VcRU8zGIfgcl'
