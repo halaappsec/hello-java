@@ -14,8 +14,14 @@ steps:
     buildCommand: '"C:\Program Files\Apache Maven\bin\mvn" -B compile'
     allowUntrusted: true
 
+- script: |
+    # Convert Coverity analysis results to SARIF format
+    cov-format-errors --dir $(Build.Repository.LocalPath)/cov-int --sarif-output coverity-results.sarif
+  displayName: 'Convert Coverity Results to SARIF'
+
 - task: CodeDxUploadFilse@0
   inputs:
     codeDxUrl: 'http://localhost/srm/projects/'
-    projectId: '1'
+    projectId: 'test2'
     apiKey: 'bNostnbTYFKNMqMoHq3Vme137yp5VcRU8zGIfgcl'
+    filePaths: coverity-results.sarif
