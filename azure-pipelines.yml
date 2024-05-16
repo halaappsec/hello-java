@@ -14,21 +14,10 @@ steps:
     buildCommand: '"C:\Program Files\Apache Maven\bin\mvn" -B compile'
     allowUntrusted: true
 
-- script: |
-    echo "Listing potential Coverity result locations deeper..."
-    dir "$(Build.Repository.LocalPath)" /S /A /B
-  displayName: 'List Directories and Files Deeply'
-
-- script: |
-    echo "Searching for Coverity result files..."
-    dir "$(Build.Repository.LocalPath)\*.xml" /S /B
-    dir "$(Build.Repository.LocalPath)\*.json" /S /B
-    dir "$(Build.Repository.LocalPath)\*.sarif" /S /B
-  displayName: 'Search for Coverity Result Files'
 
 - task: CodeDxUploadFilse@0
   inputs:
     codeDxUrl: 'http://localhost/srm/projects/'
     projectId: 'test2'
     apiKey: 'bNostnbTYFKNMqMoHq3Vme137yp5VcRU8zGIfgcl'
-    filePaths: coverity-results.sarif
+    filePaths: $(Build.Repository.LocalPath)
