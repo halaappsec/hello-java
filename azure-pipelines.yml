@@ -18,6 +18,6 @@ steps:
 - task: CodeDxUploadFilse@0
   inputs:
     codeDxUrl: 'http://localhost/srm/projects/'
-    projectId: 'test2'
+    projectId: 1
     apiKey: 'bNostnbTYFKNMqMoHq3Vme137yp5VcRU8zGIfgcl'
     filePaths: $(Build.Repository.LocalPath)
