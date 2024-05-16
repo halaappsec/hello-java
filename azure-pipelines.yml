@@ -15,18 +15,16 @@ steps:
     allowUntrusted: true
 
 - script: |
-    echo "Listing potential Coverity result locations..."
-    dir "$(Build.Repository.LocalPath)" /S /A
-  displayName: 'List Directories and Files'
+    echo "Listing potential Coverity result locations deeper..."
+    dir "$(Build.Repository.LocalPath)" /S /A /B
+  displayName: 'List Directories and Files Deeply'
 
 - script: |
-    echo "Checking for common Coverity result directories..."
-    if exist "$(Build.Repository.LocalPath)\cov-int" (
-      dir "$(Build.Repository.LocalPath)\cov-int" /S /A
-    ) else (
-      echo "cov-int directory not found"
-    )
-  displayName: 'Check Common Coverity Output Directory'
+    echo "Searching for Coverity result files..."
+    dir "$(Build.Repository.LocalPath)\*.xml" /S /B
+    dir "$(Build.Repository.LocalPath)\*.json" /S /B
+    dir "$(Build.Repository.LocalPath)\*.sarif" /S /B
+  displayName: 'Search for Coverity Result Files'
 
 - task: CodeDxUploadFilse@0
   inputs:
