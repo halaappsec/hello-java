@@ -16,12 +16,16 @@ steps:
 
 - script: |
     echo "Listing potential Coverity result locations..."
-    ls -R $(Build.Repository.LocalPath)
+    dir "$(Build.Repository.LocalPath)" /S /A
   displayName: 'List Directories and Files'
 
 - script: |
     echo "Checking for common Coverity result directories..."
-    ls -la $(Build.Repository.LocalPath)/cov-int || echo "cov-int directory not found"
+    if exist "$(Build.Repository.LocalPath)\cov-int" (
+      dir "$(Build.Repository.LocalPath)\cov-int" /S /A
+    ) else (
+      echo "cov-int directory not found"
+    )
   displayName: 'Check Common Coverity Output Directory'
 
 - task: CodeDxUploadFilse@0
