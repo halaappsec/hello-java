@@ -15,9 +15,14 @@ steps:
     allowUntrusted: true
 
 - script: |
-    # Convert Coverity analysis results to SARIF format
-    cov-format-errors --dir $(Build.Repository.LocalPath)/cov-int --sarif-output coverity-results.sarif
-  displayName: 'Convert Coverity Results to SARIF'
+    echo "Listing potential Coverity result locations..."
+    ls -R $(Build.Repository.LocalPath)
+  displayName: 'List Directories and Files'
+
+- script: |
+    echo "Checking for common Coverity result directories..."
+    ls -la $(Build.Repository.LocalPath)/cov-int || echo "cov-int directory not found"
+  displayName: 'Check Common Coverity Output Directory'
 
 - task: CodeDxUploadFilse@0
   inputs:
