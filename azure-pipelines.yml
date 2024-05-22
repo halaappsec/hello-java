@@ -20,4 +20,4 @@ steps:
     codeDxUrl: 'http://localhost/srm/projects/'
     projectId: 2
     apiKey: 'bNostnbTYFKNMqMoHq3Vme137yp5VcRU8zGIfgcl'
-    filePaths: $(Build.ArtifactStagingDirectory)/$(Build.Buildld).zip
+    filePaths: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
