@@ -11,5 +11,6 @@ steps:
     projectName: 'test'
     streamName: 'test'
     coverityBuildDirectory: '$(Build.Repository.LocalPath)'
+    buildCommand: 'mvn clean install'
     allowUntrusted: true
 
