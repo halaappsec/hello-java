@@ -11,6 +11,6 @@ steps:
     projectName: 'test'
     streamName: 'test'
     coverityBuildDirectory: '$(Build.Repository.LocalPath)'
-    buildCommand: '/home/***/cov-analysis-linux64-2024.6.0/bin/cov-build --dir $(Build.Repository.LocalPath)/idir mvn clean install'
+    buildCommand: 'mvn clean install'
     allowUntrusted: true
 
