@@ -11,6 +11,6 @@ steps:
     projectName: 'test'
     streamName: 'test'
     coverityBuildDirectory: '$(Build.Repository.LocalPath)'
-    buildCommand: '"C:\Program Files\Apache Maven\bin\mvn" -B compile'
+    buildCommand: 'mvn -B compile'
     allowUntrusted: true
 
