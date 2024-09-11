@@ -2,7 +2,7 @@ trigger:
 - main
 
 pool:
-  name: Default
+  name: vm
   
 steps:
 - task: synopsys-coverity@1
@@ -14,10 +14,3 @@ steps:
     buildCommand: '"C:\Program Files\Apache Maven\bin\mvn" -B compile'
     allowUntrusted: true
 
-
-- task: CodeDxUploadFilse@0
-  inputs:
-    codeDxUrl: 'http://localhost/srm/projects/'
-    projectId: 2
-    apiKey: 'bNostnbTYFKNMqMoHq3Vme137yp5VcRU8zGIfgcl'
-    filePaths: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
