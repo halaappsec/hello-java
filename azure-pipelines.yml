@@ -2,7 +2,7 @@ trigger:
 - main
 
 pool:
-  name: vm
+  name: Default
   
 steps:
 - task: synopsys-coverity@1
@@ -13,4 +13,5 @@ steps:
     coverityBuildDirectory: '$(Build.Repository.LocalPath)'
     buildCommand: 'mvn clean install'
     allowUntrusted: true
+    covAnalyzeArgs: '--webapp-security'
 
