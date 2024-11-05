@@ -11,6 +11,7 @@ steps:
     projectName: 'test'
     streamName: 'test'
     coverityBuildDirectory: '$(Build.Repository.LocalPath)'
+    coverityAnalysisType: 'incremental'
     buildCommand: 'mvn clean install'
     allowUntrusted: true
     covAnalyzeArgs: '--webapp-security'
