@@ -3,7 +3,7 @@ trigger:
 
 pool:
   name: Default
-  
+
 steps:
 - task: synopsys-coverity@1
   inputs:
@@ -16,5 +16,3 @@ steps:
     allowUntrusted: true
     covAnalyzeArgs: '--webapp-security'
     covDesktopArgs: '--analyze-captured-source'
-
-
