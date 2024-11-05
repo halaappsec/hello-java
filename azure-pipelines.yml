@@ -14,5 +14,5 @@ steps:
     coverityAnalysisType: 'incremental'
     buildCommand: 'mvn clean install'
     allowUntrusted: true
-    covAnalyzeArgs: '--webapp-security'
+    covAnalyzeArgs: '--webapp-security --analyze-captured-source'
 
