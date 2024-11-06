@@ -18,3 +18,5 @@ steps:
     COVERITY_TOOL_HOME: '/home/***/cov-analysis-linux64-2024.9.0'
     COV_USER: 'admin'
     COV_URL: 'http://192.168.164.129:8081'
+    COVERITY_PASSPHRASE: 'appsec'
+    COV_VIEW: 'Outstanding Issues'
