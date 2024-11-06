@@ -14,3 +14,8 @@ steps:
     coverityAnalysisType: 'incremental'
     allowUntrusted: true
     covDesktopArgs: '--analyze-captured-source'
+
+  env:
+    COVERITY_TOOL_HOME: $(COVERITY_TOOL_HOME)
+    COV_USER: admin
+    COV_URL: 'http://192.168.164.129:8081'
