@@ -12,5 +12,13 @@ steps:
     streamName: 'test'
     coverityBuildDirectory: '$(Build.Repository.LocalPath)'
     coverityAnalysisType: 'incremental'
-    customCommandArgs: true
-    covDesktopArgs: '--analyze-captured-source'
+    allowUntrusted: true
+  env:
+    COVERITY_TOOL_HOME: '/home/***/cov-analysis-linux64-2024.9.0'
+    COV_USER: 'admin'
+    COV_URL: 'http://192.168.164.129:8081'
+
+- script: |
+    export CHANGE_SET=$(git --no-pager diff origin/main --name-only)  # Adjust branch as needed
+    /home/***/cov-analysis-linux64-2024.9.0/bin/cov-run-desktop --dir /home/***/agent/_work/3/s/idir --url http://192.168.164.129:8081 --stream test --reference-snapshot latest --present-in-reference false --ignore-uncapturable-inputs true --exit1-if-defects true $CHANGE_SET
+  displayName: 'Run Incremental Coverity Analysis'
