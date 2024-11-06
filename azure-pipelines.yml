@@ -1,5 +1,5 @@
 trigger:
-- main
+  - main
 
 pool:
   name: Default
@@ -14,8 +14,7 @@ steps:
     coverityAnalysisType: 'incremental'
     allowUntrusted: true
     covDesktopArgs: '--analyze-captured-source'
-
   env:
-    COVERITY_TOOL_HOME: $(COVERITY_TOOL_HOME)
-    COV_USER: admin
+    COVERITY_TOOL_HOME: '/home/***/cov-analysis-linux64-2024.9.0'
+    COV_USER: 'admin'
     COV_URL: 'http://192.168.164.129:8081'
