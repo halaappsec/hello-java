@@ -12,6 +12,5 @@ steps:
     streamName: 'test'
     coverityBuildDirectory: '$(Build.Repository.LocalPath)'
     coverityAnalysisType: 'incremental'
-    buildCommand: 'mvn clean install'
     allowUntrusted: true
     covDesktopArgs: '--analyze-captured-source'
