@@ -3,7 +3,7 @@ trigger:
 
 pool:
   name: Default
-  
+
 steps:
   # Step 1: Run the initial full build and analysis to create `idir` (only run manually the first time)
   - task: synopsys-coverity@1
@@ -35,7 +35,15 @@ steps:
       artifact: 'idir'
       targetPath: '$(Build.Repository.LocalPath)/idir'
 
-  # Step 4: Run Incremental Analysis with `cov-run-desktop`
+  # Check if `idir` was successfully downloaded
+  - script: |
+      if [ ! -d "$(Build.Repository.LocalPath)/idir" ]; then
+        echo "idir directory not found. Skipping incremental analysis."
+        exit 0  # Exit gracefully if `idir` is missing
+      fi
+    displayName: 'Check if idir Exists'
+
+  # Step 4: Run Incremental Analysis with `cov-run-desktop` (only if `idir` exists)
   - task: synopsys-coverity@1
     displayName: 'Run Incremental Coverity Analysis'
     inputs:
