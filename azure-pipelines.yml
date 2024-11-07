@@ -1,15 +1,43 @@
 trigger:
-  - main
+- main
 
 pool:
   name: Default
-
+  
 steps:
+# Step 1: Check if idir exists, and if not, create it using cov-build
+- bash: |
+    if [ ! -d "$(Build.SourcesDirectory)/idir" ]; then
+      echo "idir not found, creating with cov-build..."
+      cov-build --dir $(Build.SourcesDirectory)/idir -- your-build-command-here
+    else
+      echo "idir found, proceeding with analysis..."
+    fi
+  displayName: 'Create idir if missing'
+
+# Step 2: Publish the idir directory as a pipeline artifact to ensure it persists
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Build.SourcesDirectory)/idir'
+    artifact: 'idir'
+  displayName: 'Publish idir as pipeline artifact'
+
+# Step 3: Download the idir artifact (useful if the pipeline runs across different stages or jobs)
+- task: DownloadPipelineArtifact@2
+  inputs:
+    artifact: 'idir'
+    targetPath: '$(Build.SourcesDirectory)/idir'
+  displayName: 'Download idir artifact'
+
+# Step 4: Run Coverity analysis using the Synopsys Coverity task
 - task: synopsys-coverity@1
   inputs:
     coverityService: 'coverity-connect'
     projectName: 'test'
     streamName: 'test'
     coverityBuildDirectory: '$(Build.Repository.LocalPath)'
-    coverityRunType: 'custom'
-    customCoverityCommands: 'cov-run-desktop --dir idir --url http://192.168.164.129:8081/ --stream test --analyze-captured-source'
+    coverityAnalysisType: 'incremental'
+    allowUntrusted: true
+    covAnalyzeArgs: '--webapp-security'
+    covDesktopArgs: '--analyze-captured-source'
+  displayName: 'Run Coverity Analysis'
