@@ -1,43 +1,48 @@
 trigger:
-- main
+  - main
 
 pool:
   name: Default
   
 steps:
-# Step 1: Check if idir exists, and if not, create it using cov-build
-- bash: |
-    if [ ! -d "$(Build.SourcesDirectory)/idir" ]; then
-      echo "idir not found, creating with cov-build..."
-      cov-build --dir $(Build.SourcesDirectory)/idir -- your-build-command-here
-    else
-      echo "idir found, proceeding with analysis..."
-    fi
-  displayName: 'Create idir if missing'
+  # Step 1: Run the initial full build and analysis to create `idir` (only run manually the first time)
+  - task: synopsys-coverity@1
+    displayName: 'Run Coverity Full Scan (Initial Setup)'
+    inputs:
+      coverityService: 'coverity-connect'
+      projectName: 'test'
+      streamName: 'test'
+      coverityBuildDirectory: '$(Build.Repository.LocalPath)'
+      coverityAnalysisType: 'full'
+      buildCommand: 'mvn clean install'
+      allowUntrusted: true
+      covAnalyzeArgs: '--webapp-security'
+    condition: eq(variables['Build.Reason'], 'Manual')  # Run only when manually triggered
 
-# Step 2: Publish the idir directory as a pipeline artifact to ensure it persists
-- task: PublishPipelineArtifact@1
-  inputs:
-    targetPath: '$(Build.SourcesDirectory)/idir'
-    artifact: 'idir'
-  displayName: 'Publish idir as pipeline artifact'
+  # Step 2: Publish the `idir` as a pipeline artifact (only after a full scan)
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish idir as Artifact'
+    inputs:
+      targetPath: '$(Build.Repository.LocalPath)/idir'
+      artifact: 'idir'
+      publishLocation: 'pipeline'
+    condition: eq(variables['Build.Reason'], 'Manual')  # Publish only after full scans
 
-# Step 3: Download the idir artifact (useful if the pipeline runs across different stages or jobs)
-- task: DownloadPipelineArtifact@2
-  inputs:
-    artifact: 'idir'
-    targetPath: '$(Build.SourcesDirectory)/idir'
-  displayName: 'Download idir artifact'
+  # Step 3: Download the `idir` artifact in subsequent pipeline runs for incremental analysis
+  - task: DownloadPipelineArtifact@2
+    displayName: 'Download idir Artifact'
+    inputs:
+      artifact: 'idir'
+      targetPath: '$(Build.Repository.LocalPath)/idir'
 
-# Step 4: Run Coverity analysis using the Synopsys Coverity task
-- task: synopsys-coverity@1
-  inputs:
-    coverityService: 'coverity-connect'
-    projectName: 'test'
-    streamName: 'test'
-    coverityBuildDirectory: '$(Build.Repository.LocalPath)'
-    coverityAnalysisType: 'incremental'
-    allowUntrusted: true
-    covAnalyzeArgs: '--webapp-security'
-    covDesktopArgs: '--analyze-captured-source'
-  displayName: 'Run Coverity Analysis'
+  # Step 4: Run Incremental Analysis with `cov-run-desktop`
+  - task: synopsys-coverity@1
+    displayName: 'Run Incremental Coverity Analysis'
+    inputs:
+      coverityService: 'coverity-connect'
+      projectName: 'test'
+      streamName: 'test'
+      coverityBuildDirectory: '$(Build.Repository.LocalPath)'
+      coverityAnalysisType: 'incremental'
+      allowUntrusted: true
+      covDesktopArgs: '--analyze-captured-source'
