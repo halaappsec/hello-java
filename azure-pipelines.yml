@@ -35,14 +35,14 @@ steps:
       artifact: 'idir'
       targetPath: '$(Build.Repository.LocalPath)/idir'
       buildType: 'current'
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'Manual'))  # Skip if manual trigger
 
-  # Step 4: Check if `idir` exists
+  # Step 4: Check if `idir` exists and set a variable for conditional execution
   - script: |
-      if [ ! -d "$(Build.Repository.LocalPath)/idir" ]; then
-        echo "idir directory not found. Skipping incremental analysis."
-        exit 1  # Exit with a non-zero code to prevent the next step
+      if [ -d "$(Build.Repository.LocalPath)/idir" ]; then
+        echo "##vso[task.setvariable variable=IdirExists]true"
       else
-        echo "idir directory found. Proceeding with incremental analysis."
+        echo "##vso[task.setvariable variable=IdirExists]false"
       fi
     displayName: 'Check if idir Exists'
 
@@ -57,4 +57,4 @@ steps:
       coverityAnalysisType: 'incremental'
       allowUntrusted: true
       covDesktopArgs: '--analyze-captured-source'
-    condition: succeeded()  # Run only if the previous step succeeded
+    condition: eq(variables['IdirExists'], 'true')  # Run only if `idir` exists
