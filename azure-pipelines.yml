@@ -5,7 +5,7 @@ pool:
   name: Default
 
 steps:
-  # Step 1: Run the initial full build and analysis to create `idir` (only run manually the first time)
+  # Step 1: Run the initial full build and analysis (only run manually the first time)
   - task: synopsys-coverity@1
     displayName: 'Run Coverity Full Scan (Initial Setup)'
     inputs:
@@ -19,7 +19,7 @@ steps:
       covAnalyzeArgs: '--webapp-security'
     condition: eq(variables['Build.Reason'], 'Manual')  # Run only when manually triggered
 
-  # Step 2: Publish the `idir` as a pipeline artifact (only after a full scan)
+  # Step 2: Publish the `idir` as a pipeline artifact
   - task: PublishPipelineArtifact@1
     displayName: 'Publish idir as Artifact'
     inputs:
@@ -28,23 +28,25 @@ steps:
       publishLocation: 'pipeline'
     condition: eq(variables['Build.Reason'], 'Manual')  # Publish only after manual full scans
 
-  # Step 3: Download the `idir` artifact in subsequent pipeline runs for incremental analysis
+  # Step 3: Download the `idir` artifact in subsequent runs
   - task: DownloadPipelineArtifact@2
     displayName: 'Download idir Artifact'
     inputs:
       artifact: 'idir'
       targetPath: '$(Build.Repository.LocalPath)/idir'
-      buildType: 'current'  # Ensure it downloads from the current or specific build
+      buildType: 'current'
 
-  # Step 4: Check if `idir` exists before proceeding with incremental analysis
+  # Step 4: Check if `idir` exists
   - script: |
       if [ ! -d "$(Build.Repository.LocalPath)/idir" ]; then
         echo "idir directory not found. Skipping incremental analysis."
-        exit 0  # Exit gracefully if `idir` is missing
+        exit 1  # Exit with a non-zero code to prevent the next step
+      else
+        echo "idir directory found. Proceeding with incremental analysis."
       fi
     displayName: 'Check if idir Exists'
 
-  # Step 5: Run Incremental Analysis with `cov-run-desktop` (only if `idir` exists)
+  # Step 5: Run Incremental Analysis (only if `idir` exists)
   - task: synopsys-coverity@1
     displayName: 'Run Incremental Coverity Analysis'
     inputs:
@@ -55,3 +57,4 @@ steps:
       coverityAnalysisType: 'incremental'
       allowUntrusted: true
       covDesktopArgs: '--analyze-captured-source'
+    condition: succeeded()  # Run only if the previous step succeeded
