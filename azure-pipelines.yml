@@ -26,7 +26,7 @@ steps:
       targetPath: '$(Build.Repository.LocalPath)/idir'
       artifact: 'idir'
       publishLocation: 'pipeline'
-    condition: eq(variables['Build.Reason'], 'Manual')  # Publish only after full scans
+    condition: eq(variables['Build.Reason'], 'Manual')  # Publish only after manual full scans
 
   # Step 3: Download the `idir` artifact in subsequent pipeline runs for incremental analysis
   - task: DownloadPipelineArtifact@2
@@ -34,8 +34,9 @@ steps:
     inputs:
       artifact: 'idir'
       targetPath: '$(Build.Repository.LocalPath)/idir'
+      buildType: 'current'  # Ensure it downloads from the current or specific build
 
-  # Check if `idir` was successfully downloaded
+  # Step 4: Check if `idir` exists before proceeding with incremental analysis
   - script: |
       if [ ! -d "$(Build.Repository.LocalPath)/idir" ]; then
         echo "idir directory not found. Skipping incremental analysis."
@@ -43,7 +44,7 @@ steps:
       fi
     displayName: 'Check if idir Exists'
 
-  # Step 4: Run Incremental Analysis with `cov-run-desktop` (only if `idir` exists)
+  # Step 5: Run Incremental Analysis with `cov-run-desktop` (only if `idir` exists)
   - task: synopsys-coverity@1
     displayName: 'Run Incremental Coverity Analysis'
     inputs:
