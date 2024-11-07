@@ -19,7 +19,7 @@ steps:
       covAnalyzeArgs: '--webapp-security'
     condition: eq(variables['Build.Reason'], 'Manual')  # Run only when manually triggered
 
-  # Step 2: Publish the `idir` as a pipeline artifact
+  # Step 2: Publish the `idir` as a pipeline artifact after the full scan
   - task: PublishPipelineArtifact@1
     displayName: 'Publish idir as Artifact'
     inputs:
@@ -28,25 +28,27 @@ steps:
       publishLocation: 'pipeline'
     condition: eq(variables['Build.Reason'], 'Manual')  # Publish only after manual full scans
 
-  # Step 3: Download the `idir` artifact in subsequent runs
+  # Step 3: Download the `idir` artifact in subsequent runs (not in manual runs)
   - task: DownloadPipelineArtifact@2
     displayName: 'Download idir Artifact'
     inputs:
       artifact: 'idir'
       targetPath: '$(Build.Repository.LocalPath)/idir'
       buildType: 'current'
-    condition: and(succeeded(), ne(variables['Build.Reason'], 'Manual'))  # Skip if manual trigger
+    condition: ne(variables['Build.Reason'], 'Manual')  # Skip download if manual trigger
 
-  # Step 4: Check if `idir` exists and set a variable for conditional execution
+  # Step 4: Check if `idir` exists and set an output variable (only in non-manual runs)
   - script: |
       if [ -d "$(Build.Repository.LocalPath)/idir" ]; then
-        echo "##vso[task.setvariable variable=IdirExists]true"
+        echo "##vso[task.setvariable variable=IdirExists;isOutput=true]true"
       else
-        echo "##vso[task.setvariable variable=IdirExists]false"
+        echo "##vso[task.setvariable variable=IdirExists;isOutput=true]false"
       fi
     displayName: 'Check if idir Exists'
+    condition: ne(variables['Build.Reason'], 'Manual')  # Run only in non-manual runs
+    name: CheckIdir
 
-  # Step 5: Run Incremental Analysis (only if `idir` exists)
+  # Step 5: Run Incremental Analysis (only if `idir` exists and in non-manual runs)
   - task: synopsys-coverity@1
     displayName: 'Run Incremental Coverity Analysis'
     inputs:
@@ -57,4 +59,4 @@ steps:
       coverityAnalysisType: 'incremental'
       allowUntrusted: true
       covDesktopArgs: '--analyze-captured-source'
-    condition: eq(variables['IdirExists'], 'true')  # Run only if `idir` exists
+    condition: and(succeeded(), eq(dependencies.CheckIdir.outputs['CheckIdir.IdirExists'], 'true'))  # Run only if `idir` exists and previous steps succeeded
