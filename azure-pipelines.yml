@@ -4,73 +4,69 @@ trigger:
 pool:
   name: Default
 
+# Define the persistent path for storing idir
+variables:
+  sharedIdirPath: '/home/appsec/shared/idir'  # Adjust this path as needed
+
 steps:
-  # Step 1: Run the initial full build and analysis (only run manually the first time)
-  - task: synopsys-coverity@1
-    displayName: 'Run Coverity Full Scan (Initial Setup)'
+  # Step 1: Restore the idir if it exists; otherwise, indicate a full scan is needed
+  - task: Bash@3
+    displayName: 'Restore idir or Prepare for Full Scan'
     inputs:
-      coverityService: 'coverity-connect'
+      targetType: 'inline'
+      script: |
+        if [ -d "$(sharedIdirPath)" ]; then
+          echo "Restoring idir from shared location..."
+          mkdir -p $(Build.Repository.LocalPath)/idir
+          cp -r $(sharedIdirPath)/* $(Build.Repository.LocalPath)/idir
+          echo "idir restored successfully; proceeding with incremental scan."
+        else
+          echo "No previous idir found; performing full scan."
+          echo "full_scan_needed=true" >> $(Build.Repository.LocalPath)/scan_mode.env
+        fi
+
+  # Step 2: Load the scan mode environment variable to determine scan type
+  - task: Bash@3
+    displayName: 'Load Scan Mode'
+    inputs:
+      targetType: 'inline'
+      script: |
+        if [ -f "$(Build.Repository.LocalPath)/scan_mode.env" ]; then
+          source $(Build.Repository.LocalPath)/scan_mode.env
+        fi
+
+  # Step 3: Conditional Full Coverity Scan if idir is missing
+  - task: synopsys-coverity@1
+    displayName: 'Run Full Coverity Scan'
+    condition: eq(variables['full_scan_needed'], 'true')
+    inputs:
+      coverityService: 'synopsys'
       projectName: 'test'
       streamName: 'test'
       coverityBuildDirectory: '$(Build.Repository.LocalPath)'
-      coverityAnalysisType: 'full'
       buildCommand: 'mvn clean install'
       allowUntrusted: true
       covAnalyzeArgs: '--webapp-security'
-    condition: eq(variables['Build.Reason'], 'Manual')  # Run only when manually triggered
 
-  # Step 2: Publish the `idir` as a pipeline artifact after the full scan
-  - task: PublishPipelineArtifact@1
-    displayName: 'Publish idir as Artifact'
-    inputs:
-      targetPath: '$(Build.Repository.LocalPath)/idir'
-      artifact: 'idir'
-      publishLocation: 'pipeline'
-    condition: eq(variables['Build.Reason'], 'Manual')  # Publish only after manual full scans
-
-  # Step 3: Download the `idir` artifact in subsequent runs (not in manual runs)
-  - task: DownloadPipelineArtifact@2
-    displayName: 'Download idir Artifact'
-    inputs:
-      artifactName: 'idir'
-      targetPath: '$(Build.Repository.LocalPath)/idir'
-      buildType: 'current'
-    condition: ne(variables['Build.Reason'], 'Manual')  # Skip download if manual trigger
-
-  # Step 4: Check if `idir` exists and set an output variable (only in non-manual runs)
-  - script: |
-      if [ -d "$(Build.Repository.LocalPath)/idir" ]; then
-        echo "##vso[task.setvariable variable=IdirExists;isOutput=true]true"
-      else
-        echo "##vso[task.setvariable variable=IdirExists;isOutput=true]false"
-      fi
-    displayName: 'Check if idir Exists'
-    condition: ne(variables['Build.Reason'], 'Manual')  # Run only in non-manual runs
-    name: CheckIdir
-
-  # Step 5: Run Incremental Analysis (only if `idir` exists and in non-manual runs)
+  # Step 4: Conditional Incremental Coverity Scan if idir is available
   - task: synopsys-coverity@1
-    displayName: 'Run Incremental Coverity Analysis'
+    displayName: 'Run Incremental Coverity Scan'
+    condition: ne(variables['full_scan_needed'], 'true')
     inputs:
-      coverityService: 'coverity-connect'
-      projectName: 'test'
-      streamName: 'test'
+      coverityService: 'synopsys'
+      projectName: 'SC.Integration.ZATCA.Portal.Services'
+      streamName: 'SC.Integration.ZATCA.Portal.Services'
       coverityBuildDirectory: '$(Build.Repository.LocalPath)'
       coverityAnalysisType: 'incremental'
       allowUntrusted: true
       covDesktopArgs: '--analyze-captured-source'
-    condition: and(succeeded(), eq(variables['IdirExists'], 'true'))  # Run only if `idir` exists and previous steps succeeded
 
-  # Step 6: Run Full Analysis if `idir` does not exist (fallback)
-  - task: synopsys-coverity@1
-    displayName: 'Run Coverity Full Scan (Fallback)'
+  # Step 5: Save the updated idir for future incremental scans
+  - task: Bash@3
+    displayName: 'Save idir to Shared Location'
     inputs:
-      coverityService: 'coverity-connect'
-      projectName: 'test'
-      streamName: 'test'
-      coverityBuildDirectory: '$(Build.Repository.LocalPath)'
-      coverityAnalysisType: 'full'
-      buildCommand: 'mvn clean install'
-      allowUntrusted: true
-      covAnalyzeArgs: '--webapp-security'
-    condition: and(succeeded(), eq(variables['IdirExists'], 'false'))  # Run only if `idir` does not exist
+      targetType: 'inline'
+      script: |
+        echo "Saving updated idir to shared location for future incremental scans..."
+        mkdir -p $(sharedIdirPath)
+        cp -r $(Build.Repository.LocalPath)/idir/* $(sharedIdirPath)
