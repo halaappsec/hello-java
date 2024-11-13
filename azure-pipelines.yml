@@ -40,7 +40,7 @@ steps:
     displayName: 'Run Full Coverity Scan'
     condition: eq(variables['full_scan_needed'], 'true')
     inputs:
-      coverityService: 'synopsys'
+      coverityService: 'coverity-connect'
       projectName: 'test'
       streamName: 'test'
       coverityBuildDirectory: '$(Build.Repository.LocalPath)'
@@ -53,7 +53,7 @@ steps:
     displayName: 'Run Incremental Coverity Scan'
     condition: ne(variables['full_scan_needed'], 'true')
     inputs:
-      coverityService: 'synopsys'
+      coverityService: 'coverity-connect'
       projectName: 'SC.Integration.ZATCA.Portal.Services'
       streamName: 'SC.Integration.ZATCA.Portal.Services'
       coverityBuildDirectory: '$(Build.Repository.LocalPath)'
