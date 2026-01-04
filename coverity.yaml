@@ -1,9 +1,7 @@
 capture:
-  build:
-    build-command: mvn clean install -DskipTests
   files:
-    # الحل: نستخدم exclude-regex لأنه يقبل نص واحد يجمع كل المجلدات
-    # الرمز | يعني "أو" .. يعني استبعد هذا "أو" هذا "أو" هذا
-    exclude-regex: "(.*/node_modules/.*|.*/target/.*|.*/frontend/.*|.frontend/.*)"
+    # استخدام Regex لاستبعاد المجلدات بالكامل بناءً على التوثيق الذي أرسلته
+    # هذا النمط يستبعد أي مسار يحتوي على /frontend/ أو /node_modules/ أو /target/
+    exclude-regex: '.*[/](frontend|node_modules|target)[/].*'
 analyze:
   mode: local
