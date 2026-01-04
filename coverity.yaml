@@ -1,12 +1,9 @@
 capture:
   build:
-    # هذا يخبر كوفيرتي: حتى لو استخدمت Maven، تجاهل هذه المجلدات تماماً
     build-command: mvn clean install -DskipTests
   files:
-    exclude-glob: 
-      - "**/node_modules/**"
-      - "**/target/**"
-      - "frontend/**"
-      - "**/frontend/**"
+    # الحل: نستخدم exclude-regex لأنه يقبل نص واحد يجمع كل المجلدات
+    # الرمز | يعني "أو" .. يعني استبعد هذا "أو" هذا "أو" هذا
+    exclude-regex: "(.*/node_modules/.*|.*/target/.*|.*/frontend/.*|.frontend/.*)"
 analyze:
   mode: local
