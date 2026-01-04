@@ -1,7 +1,7 @@
 capture:
-  files:
-    # استخدام Regex لاستبعاد المجلدات بالكامل بناءً على التوثيق الذي أرسلته
-    # هذا النمط يستبعد أي مسار يحتوي على /frontend/ أو /node_modules/ أو /target/
-    exclude-regex: '.*[/](frontend|node_modules|target)[/].*'
-analyze:
-  mode: local
+  languages:
+    include:
+      - java
+    exclude:
+      - javascript
+      - typescript
