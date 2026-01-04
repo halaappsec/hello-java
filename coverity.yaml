@@ -1,1 +1,5 @@
+capture:
+  languages:
+    exclude:
+      - javascript
 
