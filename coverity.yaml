@@ -1,7 +1,4 @@
 capture:
   languages:
-    include:
-      - java
     exclude:
       - javascript
-      - typescript
